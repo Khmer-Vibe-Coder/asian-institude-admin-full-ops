@@ -30,7 +30,7 @@ export const ROLE_ACCESS: Record<Role, string[]> = {
     "/admin/timetable",
     "/admin/news",
   ],
-  Lecturer: ["/admin", "/admin/classes", "/admin/attendance", "/admin/grades", "/admin/timetable"],
+  Lecturer: ["/admin/classes", "/admin/attendance", "/admin/grades", "/admin/timetable"],
   Accountant: ["/admin", "/admin/finance", "/admin/scholarships"],
   Student: ["/admin/portal"],
 };

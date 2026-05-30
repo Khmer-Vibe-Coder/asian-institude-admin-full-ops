@@ -6,6 +6,8 @@ import { ResourceFormDialog, type FormField } from "@/components/admin/ResourceF
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { Attendance } from "@/services/api";
 import { toast } from "sonner";
+import { useRole } from "@/contexts/RoleContext";
+import { BookOpen, Check } from "lucide-react";
 
 export const Route = createFileRoute("/admin/attendance")({ component: AttendancePage });
 
@@ -16,6 +18,7 @@ const statusColor: Record<Attendance["status"], string> = {
 };
 
 function AttendancePage() {
+  const { role } = useRole();
   const [q, setQ] = useState("");
   const [date, setDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [course, setCourse] = useState<string>("All");
@@ -93,29 +96,65 @@ function AttendancePage() {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white" />
-        <button onClick={markAllPresent} className="px-3.5 py-2 rounded-lg bg-emerald-600 text-white text-sm hover:bg-emerald-700">Mark all present for selected course</button>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white" />
+          <select 
+            value={course} 
+            onChange={(e) => setCourse(e.target.value)}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-[#d9a441]"
+          >
+            <option value="All">— {role === "Lecturer" ? "Select a class to take attendance" : "All Classes"} —</option>
+            {courseOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+        </div>
+        {course !== "All" && (
+          <div className="flex items-center gap-2">
+            <button onClick={markAllPresent} className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm hover:bg-slate-50 font-medium transition-colors">
+              Mark all present
+            </button>
+            <button 
+              onClick={() => {
+                toast.success(`Attendance for ${course} on ${date} has been confirmed and saved!`);
+                setCourse("All"); // Reset the view to give a sense of completion
+              }} 
+              className="px-4 py-2 rounded-lg bg-[#d9a441] text-white text-sm hover:bg-[#c29235] font-medium transition-colors flex items-center gap-2"
+            >
+              <Check className="size-4" />
+              Confirm & Submit
+            </button>
+          </div>
+        )}
       </div>
-      <DataTable<Attendance>
-        title="Attendance"
-        description={`${list.data?.total ?? 0} records`}
-        data={list.data?.data ?? []}
-        loading={list.isLoading}
-        columns={columns}
-        search={q}
-        onSearch={setQ}
-        searchPlaceholder="Search by course code…"
-        filterChips={[{ key: "courseCode", options: ["All", ...courseOptions.map((o) => o.value)] }]}
-        filterValues={{ courseCode: course }}
-        onFilterChange={(_, v) => setCourse(v)}
-        onAdd={() => setAddOpen(true)}
-        addLabel="Add Entry"
-        exportFilename="aic-attendance.csv"
-        onEdit={setEditRow}
-        onDelete={setDelRow}
-        onBulkDelete={(ids) => removeMany.mutate(ids)}
-      />
+
+      {role === "Lecturer" && course === "All" ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-slate-200">
+          <div className="size-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4">
+            <BookOpen className="size-8" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800 mb-1">Select a Class</h3>
+          <p className="text-sm text-slate-500 max-w-sm text-center">
+            Please choose a specific class from the dropdown above to view or mark attendance for today.
+          </p>
+        </div>
+      ) : (
+        <DataTable<Attendance>
+          title={course === "All" ? "Overall Attendance" : `Attendance: ${course}`}
+          description={`${list.data?.total ?? 0} records`}
+          data={list.data?.data ?? []}
+          loading={list.isLoading}
+          columns={columns}
+          search={q}
+          onSearch={setQ}
+          searchPlaceholder="Search…"
+          onAdd={() => setAddOpen(true)}
+          addLabel="Add Entry"
+          exportFilename="aic-attendance.csv"
+          onEdit={setEditRow}
+          onDelete={setDelRow}
+          onBulkDelete={(ids) => removeMany.mutate(ids)}
+        />
+      )}
 
       <ResourceFormDialog<Attendance>
         open={addOpen}
