@@ -51,6 +51,7 @@ function OrgCard({
   const [hov, setHov] = useState(false);
   const initials = (head || name).split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
   const cardW = type === "root" ? 240 : type === "faculty" ? 210 : 190;
+  const avatarSz = type === "root" ? 80 : type === "faculty" ? 68 : 56;
 
   return (
     <div
@@ -60,34 +61,45 @@ function OrgCard({
       onMouseLeave={() => setHov(false)}
     >
       <div
-        className="w-full bg-white rounded-2xl border shadow-sm group transition-all duration-300"
+        className="w-full bg-white rounded-2xl transition-shadow duration-300"
         style={{
-          borderColor: hov ? color : "#e2e8f0",
-          boxShadow: hov ? `0 8px 30px ${color}25, 0 2px 8px #0001` : "0 1px 4px #0000000d",
-          borderWidth: hov ? 2 : 1,
+          /* Always 1px border — never changes width, so tree lines never shift */
+          border: `1px solid ${hov ? color + "66" : "#e2e8f0"}`,
+          boxShadow: hov
+            ? `0 6px 24px ${color}22, 0 1px 4px #0000000d`
+            : "0 1px 4px #0000000d",
         }}
       >
-        {/* top color stripe */}
-        <div className="h-1 rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${color}, ${color}80)` }} />
-
         <div className="p-5 text-center">
-          {/* Badge number */}
-          <div className="absolute top-4 right-4 text-[10px] text-slate-300 font-mono">{id.split("_").pop()}</div>
+          {/* Small node id */}
+          <div className="absolute top-3 right-3 text-[9px] text-slate-300 font-mono">{id.split("_").pop()}</div>
 
           {/* Avatar */}
           <div className="flex justify-center mb-3">
             {photo ? (
-              <img src={photo} alt={head || name} className="rounded-full object-cover ring-2 ring-offset-2"
-                style={{ width: type === "root" ? 80 : type === "faculty" ? 68 : 56, height: type === "root" ? 80 : type === "faculty" ? 68 : 56, outlineColor: color }} />
+              <img
+                src={photo}
+                alt={head || name}
+                className="rounded-full object-cover"
+                style={{ width: avatarSz, height: avatarSz, boxShadow: `0 0 0 3px ${color}33` }}
+              />
             ) : (
-              <div className="rounded-full flex items-center justify-center text-white font-bold"
-                style={{ width: type === "root" ? 80 : type === "faculty" ? 68 : 56, height: type === "root" ? 80 : type === "faculty" ? 68 : 56, background: `linear-gradient(135deg, ${color}, ${color}bb)`, fontSize: type === "root" ? 24 : 18 }}>
+              <div
+                className="rounded-full flex items-center justify-center text-white font-bold"
+                style={{
+                  width: avatarSz,
+                  height: avatarSz,
+                  background: `linear-gradient(135deg, ${color}, ${color}bb)`,
+                  fontSize: type === "root" ? 24 : 18,
+                  boxShadow: `0 0 0 3px ${color}22`,
+                }}
+              >
                 {initials}
               </div>
             )}
           </div>
 
-          {/* Head name */}
+          {/* Head / Dean name */}
           {head && <h4 className="font-bold text-slate-900 text-sm leading-tight">{head}</h4>}
 
           {/* Role label */}
@@ -95,7 +107,7 @@ function OrgCard({
             {role}
           </p>
 
-          {/* Faculty/Dept name */}
+          {/* Faculty / Dept full name */}
           <p className="text-xs text-slate-500 leading-snug line-clamp-2">{name}</p>
 
           {/* Stats row */}
@@ -109,9 +121,9 @@ function OrgCard({
         </div>
       </div>
 
-      {/* Hover action pill */}
+      {/* Hover action pill — floats below the card */}
       {hov && (onEdit || onDelete || onAdd) && (
-        <div className="absolute -bottom-4 z-20 flex gap-0.5 bg-white rounded-full shadow-xl border border-slate-200 px-2 py-1">
+        <div className="absolute -bottom-4 z-20 flex gap-0.5 bg-white rounded-full shadow-lg border border-slate-200 px-2 py-1">
           {onAdd && <button onClick={onAdd} title="Add sub" className="size-6 flex items-center justify-center text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"><Plus className="size-3.5" /></button>}
           {onEdit && <button onClick={onEdit} title="Edit" className="size-6 flex items-center justify-center text-slate-500 hover:bg-slate-100 rounded-full transition-colors"><Pencil className="size-3.5" /></button>}
           {onDelete && <button onClick={onDelete} title="Delete" className="size-6 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-full transition-colors"><Trash2 className="size-3.5" /></button>}
@@ -120,6 +132,7 @@ function OrgCard({
     </div>
   );
 }
+
 
 // ── Connector helpers ─────────────────────────────────────────────────────────
 /**
