@@ -86,7 +86,7 @@ function AdminLayout() {
   const portalMode = role === "Student";
 
   return (
-    <div className="admin-shell min-h-screen flex bg-[#f5f6fa] text-[#0f1b3d]">
+    <div className="admin-shell h-screen overflow-hidden flex bg-[#f5f6fa] text-[#0f1b3d]">
       <aside className="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col">
         <div className="p-5 flex items-center gap-3 border-b border-slate-200">
           <div className="size-10 rounded-lg bg-[#d9a441] flex items-center justify-center">
@@ -116,7 +116,7 @@ function AdminLayout() {
         </Link>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="h-16 px-8 bg-white border-b border-slate-200 flex items-center justify-between">
           <h1 className="font-serif text-xl font-bold">{title}</h1>
           <div className="flex items-center gap-4">

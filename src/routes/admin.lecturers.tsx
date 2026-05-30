@@ -12,8 +12,8 @@ import {
   ChevronDown,
   ToggleLeft,
   ToggleRight,
-  UserCheck,
   BookOpen,
+  Upload,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/lecturers")({ component: LecturersPage });
@@ -26,6 +26,40 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="space-y-1.5">
       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</label>
       {children}
+    </div>
+  );
+}
+
+// ── Photo upload widget ───────────────────────────────────────────────────────
+function PhotoUpload({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div className="flex items-center gap-4">
+      <div
+        onClick={() => ref.current?.click()}
+        className="size-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-[#d9a441] transition-colors overflow-hidden bg-slate-50 shrink-0"
+      >
+        {value ? <img src={value} alt="preview" className="size-full object-cover" /> : <Upload className="size-5 text-slate-400" />}
+      </div>
+      <div className="flex-1">
+        <button type="button" onClick={() => ref.current?.click()} className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600">
+          {value ? "Change photo" : "Upload photo"}
+        </button>
+        {value && (
+          <button type="button" onClick={() => onChange("")} className="ml-2 text-xs text-red-500 hover:underline inline-flex items-center gap-0.5">
+            <X className="size-3" /> Remove
+          </button>
+        )}
+        <p className="text-[11px] text-slate-400 mt-1">JPG, PNG or WebP</p>
+      </div>
+      <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleFile} />
     </div>
   );
 }
@@ -351,9 +385,9 @@ function LecturerModal({
             </div>
           </Field>
 
-          {/* Photo URL */}
-          <Field label="Photo URL">
-            <input type="url" value={form.photo} onChange={e => setForm(f => ({ ...f, photo: e.target.value }))} className={inputCls} placeholder="https://…" />
+          {/* Photo */}
+          <Field label="Photo">
+            <PhotoUpload value={form.photo} onChange={v => setForm(f => ({ ...f, photo: v }))} />
           </Field>
 
           {/* Courses */}

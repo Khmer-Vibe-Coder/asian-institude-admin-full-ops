@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useForm, type DefaultValues, type Path } from "react-hook-form";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Upload, X } from "lucide-react";
 
-export type FieldType = "text" | "email" | "tel" | "number" | "date" | "textarea" | "select" | "url";
+export type FieldType = "text" | "email" | "tel" | "number" | "date" | "textarea" | "select" | "url" | "photo";
 
 export type FormField<T> = {
   name: keyof T & string;
@@ -18,6 +19,53 @@ export type FormField<T> = {
   hint?: string;
   full?: boolean; // takes full row
 };
+
+/** Standalone photo upload widget — converts file to base64 and calls onChange */
+function PhotoUpload({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div className="flex items-center gap-4">
+      {/* Preview circle */}
+      <div
+        onClick={() => ref.current?.click()}
+        className="size-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-[#d9a441] transition-colors overflow-hidden bg-slate-50 shrink-0"
+      >
+        {value ? (
+          <img src={value} alt="preview" className="size-full object-cover" />
+        ) : (
+          <Upload className="size-5 text-slate-400" />
+        )}
+      </div>
+      <div className="flex-1">
+        <button
+          type="button"
+          onClick={() => ref.current?.click()}
+          className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600"
+        >
+          {value ? "Change photo" : "Upload photo"}
+        </button>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="ml-2 text-xs text-red-500 hover:underline inline-flex items-center gap-0.5"
+          >
+            <X className="size-3" /> Remove
+          </button>
+        )}
+        <p className="text-[11px] text-slate-400 mt-1">JPG, PNG or WebP — max 5 MB</p>
+      </div>
+      <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+    </div>
+  );
+}
 
 export function ResourceFormDialog<T extends Record<string, unknown>>({
   open,
@@ -88,12 +136,18 @@ export function ResourceFormDialog<T extends Record<string, unknown>>({
               max: f.max,
             });
             const err = form.formState.errors[f.name as Path<T>];
+            const currentVal = form.watch(f.name as Path<T>) as string | undefined;
             return (
-              <div key={f.name} className={f.full || f.type === "textarea" ? "sm:col-span-2" : undefined}>
+              <div key={f.name} className={f.full || f.type === "textarea" || f.type === "photo" ? "sm:col-span-2" : undefined}>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
                   {f.label}{f.required && <span className="text-red-500 ml-0.5">*</span>}
                 </label>
-                {f.type === "textarea" ? (
+                {f.type === "photo" ? (
+                  <PhotoUpload
+                    value={currentVal}
+                    onChange={(v) => form.setValue(f.name as Path<T>, v as unknown as Parameters<typeof form.setValue>[1])}
+                  />
+                ) : f.type === "textarea" ? (
                   <textarea
                     {...reg}
                     rows={4}

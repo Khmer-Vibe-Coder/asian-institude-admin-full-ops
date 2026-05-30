@@ -16,8 +16,8 @@ const statusColor: Record<Student["status"], string> = {
   Inactive: "bg-slate-100 text-slate-600",
 };
 
-const fields: FormField<Student>[] = [
-  { name: "studentId", label: "Student ID", required: true, placeholder: "AIC-2025-001" },
+// Fields shown when ADDING a new student (ID is auto-generated)
+const addFields: FormField<Student>[] = [
   { name: "name", label: "Full Name", required: true },
   { name: "khmerName", label: "Khmer Name" },
   { name: "email", label: "Email", type: "email", required: true },
@@ -32,8 +32,18 @@ const fields: FormField<Student>[] = [
   { name: "gpa", label: "GPA", type: "number", step: 0.01, min: 0, max: 4 },
   { name: "status", label: "Status", type: "select", required: true, options: ["Active","Graduating","Suspended","Inactive"].map((s) => ({ value: s, label: s })) },
   { name: "enrolledAt", label: "Enrolled At", type: "date", required: true },
-  { name: "photo", label: "Photo URL", type: "url", full: true },
+  { name: "photo", label: "Photo", type: "photo", full: true },
 ];
+
+// Fields shown when EDITING (same but includes studentId as read-only display — handled separately)
+const editFields: FormField<Student>[] = addFields;
+
+// Auto-generate a student ID like AIC-2025-001
+function generateStudentId(): string {
+  const year = new Date().getFullYear();
+  const rand = String(Math.floor(Math.random() * 900) + 100);
+  return `AIC-${year}-${rand}`;
+}
 
 function StudentsPage() {
   const [q, setQ] = useState("");
@@ -101,17 +111,20 @@ function StudentsPage() {
         open={addOpen}
         onOpenChange={setAddOpen}
         title="Add Student"
-        fields={fields}
+        fields={addFields}
         defaultValues={{ status: "Active", year: "Y1", faculty: "FIT", gpa: 0, enrolledAt: new Date().toISOString().slice(0, 10) }}
         submitting={create.isPending}
-        onSubmit={async (v) => { await create.mutateAsync(v as Omit<Student,"id">); }}
+        onSubmit={async (v) => {
+          await create.mutateAsync({ ...v, studentId: generateStudentId() } as Omit<Student, "id">);
+        }}
       />
 
       <ResourceFormDialog<Student>
         open={!!editRow}
         onOpenChange={(v) => !v && setEditRow(null)}
         title={`Edit ${editRow?.name ?? ""}`}
-        fields={fields}
+        description={`Student ID: ${editRow?.studentId ?? ""}`}
+        fields={editFields}
         defaultValues={editRow ?? {}}
         submitting={update.isPending}
         onSubmit={async (v) => { await update.mutateAsync({ id: editRow!.id, patch: v }); }}
