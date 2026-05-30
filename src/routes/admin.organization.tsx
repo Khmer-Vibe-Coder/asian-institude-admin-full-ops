@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { Plus, Pencil, Trash2, Users, BookOpen, UserCheck, X, Building2, Search } from "lucide-react";
 import { facultyHooks, departmentHooks, lecturerHooks } from "@/hooks/queries";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { PhotoUpload } from "@/components/admin/ResourceFormDialog";
 import type { FacultyRecord, DepartmentRecord } from "@/services/api";
 
 export const Route = createFileRoute("/admin/organization")({ component: OrganizationPage });
@@ -243,9 +244,9 @@ function OrganizationPage() {
   const [delDept, setDelDept] = useState<DepartmentRecord | null>(null);
 
   // Faculty form state
-  const [facForm, setFacForm] = useState({ name: "", code: "", dean: "" });
+  const [facForm, setFacForm] = useState({ name: "", code: "", dean: "", photo: "" });
   // Dept form state
-  const [deptForm, setDeptForm] = useState({ name: "", code: "", head: "", facultyId: "" });
+  const [deptForm, setDeptForm] = useState({ name: "", code: "", head: "", facultyId: "", photo: "" });
 
   const faculties = facultyQ.data?.data ?? [];
   const departments = deptQ.data?.data ?? [];
@@ -269,6 +270,7 @@ function OrganizationPage() {
         name: fac.name,
         role: fac.code + " · Faculty",
         head: fac.dean,
+        photo: fac.photo,
         color,
         light,
         raw: fac,
@@ -285,6 +287,7 @@ function OrganizationPage() {
             name: dept.name,
             role: dept.code + " · Department",
             head: dept.head,
+            photo: dept.photo,
             color,
             light,
             raw: dept,
@@ -317,11 +320,11 @@ function OrganizationPage() {
   function openEdit(node: OrgTreeNode) {
     if (node.type === "faculty") {
       const raw = node.raw as FacultyRecord;
-      setFacForm({ name: raw.name, code: raw.code, dean: raw.dean ?? "" });
+      setFacForm({ name: raw.name, code: raw.code, dean: raw.dean ?? "", photo: raw.photo ?? "" });
       setFacModal({ open: true, edit: raw });
     } else if (node.type === "department") {
       const raw = node.raw as DepartmentRecord;
-      setDeptForm({ name: raw.name, code: raw.code, head: raw.head ?? "", facultyId: raw.facultyId });
+      setDeptForm({ name: raw.name, code: raw.code, head: raw.head ?? "", facultyId: raw.facultyId, photo: raw.photo ?? "" });
       setDeptModal({ open: true, edit: raw });
     }
   }
@@ -334,7 +337,7 @@ function OrganizationPage() {
   function openAddChild(node: OrgTreeNode) {
     if (node.type === "root" || node.type === "faculty") {
       const facId = node.type === "faculty" ? node.id : "";
-      setDeptForm({ name: "", code: "", head: "", facultyId: facId });
+      setDeptForm({ name: "", code: "", head: "", facultyId: facId, photo: "" });
       setDeptModal({ open: true, defaultFacId: facId });
     }
   }
@@ -353,7 +356,7 @@ function OrganizationPage() {
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search faculties…"
               className="pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:border-[#d9a441] outline-none bg-white w-52" />
           </div>
-          <button onClick={() => { setFacForm({ name: "", code: "", dean: "" }); setFacModal({ open: true }); }}
+          <button onClick={() => { setFacForm({ name: "", code: "", dean: "", photo: "" }); setFacModal({ open: true }); }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0f1b3d] text-white text-sm font-medium hover:bg-[#0f1b3d]/90">
             <Plus className="size-4" /> Add Faculty
           </button>
@@ -397,16 +400,22 @@ function OrganizationPage() {
           onSave={async () => {
             if (!facForm.name || !facForm.code) return;
             if (facModal.edit) {
-              await facUpdate.mutateAsync({ id: facModal.edit.id, patch: { name: facForm.name, code: facForm.code.toUpperCase(), dean: facForm.dean } });
+              await facUpdate.mutateAsync({ id: facModal.edit.id, patch: { name: facForm.name, code: facForm.code.toUpperCase(), dean: facForm.dean, photo: facForm.photo } });
             } else {
-              await facCreate.mutateAsync({ name: facForm.name, code: facForm.code.toUpperCase(), dean: facForm.dean, color: FAC_COLOR[facForm.code.toUpperCase()] ?? "#6b7280", totalLecturers: 0, totalStudents: 0 } as Omit<FacultyRecord, "id">);
+              await facCreate.mutateAsync({ name: facForm.name, code: facForm.code.toUpperCase(), dean: facForm.dean, photo: facForm.photo, color: FAC_COLOR[facForm.code.toUpperCase()] ?? "#6b7280", totalLecturers: 0, totalStudents: 0 } as Omit<FacultyRecord, "id">);
             }
             setFacModal({ open: false });
           }}
         >
+          <Field label="Photo (Logo/Dean)"><PhotoUpload value={facForm.photo} onChange={(v) => setFacForm((f) => ({ ...f, photo: v }))} /></Field>
           <Field label="Faculty Name *"><input value={facForm.name} onChange={(e) => setFacForm((f) => ({ ...f, name: e.target.value }))} className={inp} placeholder="e.g. Faculty of Information Technology" /></Field>
           <Field label="Code *"><input value={facForm.code} onChange={(e) => setFacForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} className={inp} placeholder="e.g. FIT" maxLength={6} /></Field>
-          <Field label="Dean / Head"><input value={facForm.dean} onChange={(e) => setFacForm((f) => ({ ...f, dean: e.target.value }))} className={inp} placeholder="e.g. Dr. Sopheap Kim" /></Field>
+          <Field label="Dean / Head">
+            <select value={facForm.dean} onChange={(e) => setFacForm((f) => ({ ...f, dean: e.target.value }))} className={inp}>
+              <option value="">— Select Dean —</option>
+              {lecturers.map(l => <option key={l.id} value={l.name}>{l.name}</option>)}
+            </select>
+          </Field>
         </Modal>
       )}
 
@@ -419,13 +428,14 @@ function OrganizationPage() {
           onSave={async () => {
             if (!deptForm.name || !deptForm.code || !deptForm.facultyId) return;
             if (deptModal.edit) {
-              await deptUpdate.mutateAsync({ id: deptModal.edit.id, patch: { name: deptForm.name, code: deptForm.code.toUpperCase(), head: deptForm.head, facultyId: deptForm.facultyId } });
+              await deptUpdate.mutateAsync({ id: deptModal.edit.id, patch: { name: deptForm.name, code: deptForm.code.toUpperCase(), head: deptForm.head, facultyId: deptForm.facultyId, photo: deptForm.photo } });
             } else {
-              await deptCreate.mutateAsync({ name: deptForm.name, code: deptForm.code.toUpperCase(), head: deptForm.head, facultyId: deptForm.facultyId, majorCount: 0, studentCount: 0 } as Omit<DepartmentRecord, "id">);
+              await deptCreate.mutateAsync({ name: deptForm.name, code: deptForm.code.toUpperCase(), head: deptForm.head, facultyId: deptForm.facultyId, photo: deptForm.photo, majorCount: 0, studentCount: 0 } as Omit<DepartmentRecord, "id">);
             }
             setDeptModal({ open: false });
           }}
         >
+          <Field label="Photo (Logo/Head)"><PhotoUpload value={deptForm.photo} onChange={(v) => setDeptForm((f) => ({ ...f, photo: v }))} /></Field>
           <Field label="Department Name *"><input value={deptForm.name} onChange={(e) => setDeptForm((f) => ({ ...f, name: e.target.value }))} className={inp} placeholder="e.g. Computer Science" /></Field>
           <Field label="Code *"><input value={deptForm.code} onChange={(e) => setDeptForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} className={inp} placeholder="e.g. CS" maxLength={6} /></Field>
           <Field label="Faculty *">
@@ -434,7 +444,12 @@ function OrganizationPage() {
               {faculties.map((fac) => <option key={fac.id} value={fac.id}>{fac.name}</option>)}
             </select>
           </Field>
-          <Field label="Department Head"><input value={deptForm.head} onChange={(e) => setDeptForm((f) => ({ ...f, head: e.target.value }))} className={inp} placeholder="e.g. Dr. Sokha Pich" /></Field>
+          <Field label="Department Head">
+            <select value={deptForm.head} onChange={(e) => setDeptForm((f) => ({ ...f, head: e.target.value }))} className={inp}>
+              <option value="">— Select Head —</option>
+              {lecturers.map(l => <option key={l.id} value={l.name}>{l.name}</option>)}
+            </select>
+          </Field>
         </Modal>
       )}
 

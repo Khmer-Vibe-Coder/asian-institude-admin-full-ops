@@ -21,7 +21,7 @@ export type FormField<T> = {
 };
 
 /** Standalone photo upload widget — converts file to base64 and calls onChange */
-function PhotoUpload({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+export function PhotoUpload({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

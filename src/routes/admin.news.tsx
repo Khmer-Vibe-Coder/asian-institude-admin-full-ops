@@ -16,7 +16,7 @@ const fields: FormField<NewsArticle>[] = [
   { name: "author", label: "Author", required: true },
   { name: "publishedAt", label: "Published At", type: "date", required: true },
   { name: "status", label: "Status", type: "select", required: true, options: ["Draft","Published"].map((s) => ({ value: s, label: s })) },
-  { name: "coverImage", label: "Cover Image URL", type: "url", full: true },
+  { name: "coverImage", label: "Cover Image", type: "photo", full: true },
   { name: "excerpt", label: "Excerpt", type: "textarea", required: true },
   { name: "body", label: "Body", type: "textarea", required: true },
 ];

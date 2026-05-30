@@ -28,6 +28,7 @@ export type FacultyRecord = {
   code: string;
   color: string;
   dean?: string;
+  photo?: string;
   totalLecturers: number;
   totalStudents: number;
 };
@@ -38,6 +39,7 @@ export type DepartmentRecord = {
   code: string;
   facultyId: string;
   head?: string;
+  photo?: string;
   majorCount: number;
   studentCount: number;
 };
