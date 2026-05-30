@@ -17,6 +17,8 @@ import {
   invoicesApi,
   timetableApi,
   messagesApi,
+  facultiesApi,
+  departmentsApi,
 } from "@/services/api";
 
 export const studentHooks = createResourceHooks(studentsApi, "students");
@@ -32,3 +34,5 @@ export const gradeHooks = createResourceHooks(gradesApi, "grades");
 export const invoiceHooks = createResourceHooks(invoicesApi, "invoices");
 export const timetableHooks = createResourceHooks(timetableApi, "timetable");
 export const messageHooks = createResourceHooks(messagesApi, "messages");
+export const facultyHooks = createResourceHooks(facultiesApi, "faculties");
+export const departmentHooks = createResourceHooks(departmentsApi, "departments");

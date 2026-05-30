@@ -17,6 +17,7 @@ import { Route as AdminStudentsRouteImport } from './routes/admin.students'
 import { Route as AdminScholarshipsRouteImport } from './routes/admin.scholarships'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPortalRouteImport } from './routes/admin.portal'
+import { Route as AdminOrganizationRouteImport } from './routes/admin.organization'
 import { Route as AdminNewsRouteImport } from './routes/admin.news'
 import { Route as AdminLecturersRouteImport } from './routes/admin.lecturers'
 import { Route as AdminGradesRouteImport } from './routes/admin.grades'
@@ -65,6 +66,11 @@ const AdminPortalRoute = AdminPortalRouteImport.update({
   path: '/portal',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNewsRoute = AdminNewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/admin/grades': typeof AdminGradesRoute
   '/admin/lecturers': typeof AdminLecturersRoute
   '/admin/news': typeof AdminNewsRoute
+  '/admin/organization': typeof AdminOrganizationRoute
   '/admin/portal': typeof AdminPortalRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/scholarships': typeof AdminScholarshipsRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/admin/grades': typeof AdminGradesRoute
   '/admin/lecturers': typeof AdminLecturersRoute
   '/admin/news': typeof AdminNewsRoute
+  '/admin/organization': typeof AdminOrganizationRoute
   '/admin/portal': typeof AdminPortalRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/scholarships': typeof AdminScholarshipsRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/admin/grades': typeof AdminGradesRoute
   '/admin/lecturers': typeof AdminLecturersRoute
   '/admin/news': typeof AdminNewsRoute
+  '/admin/organization': typeof AdminOrganizationRoute
   '/admin/portal': typeof AdminPortalRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/scholarships': typeof AdminScholarshipsRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/admin/grades'
     | '/admin/lecturers'
     | '/admin/news'
+    | '/admin/organization'
     | '/admin/portal'
     | '/admin/reports'
     | '/admin/scholarships'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/admin/grades'
     | '/admin/lecturers'
     | '/admin/news'
+    | '/admin/organization'
     | '/admin/portal'
     | '/admin/reports'
     | '/admin/scholarships'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/admin/grades'
     | '/admin/lecturers'
     | '/admin/news'
+    | '/admin/organization'
     | '/admin/portal'
     | '/admin/reports'
     | '/admin/scholarships'
@@ -268,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPortalRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/organization': {
+      id: '/admin/organization'
+      path: '/organization'
+      fullPath: '/admin/organization'
+      preLoaderRoute: typeof AdminOrganizationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/news': {
       id: '/admin/news'
       path: '/news'
@@ -328,6 +347,7 @@ interface AdminRouteChildren {
   AdminGradesRoute: typeof AdminGradesRoute
   AdminLecturersRoute: typeof AdminLecturersRoute
   AdminNewsRoute: typeof AdminNewsRoute
+  AdminOrganizationRoute: typeof AdminOrganizationRoute
   AdminPortalRoute: typeof AdminPortalRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminScholarshipsRoute: typeof AdminScholarshipsRoute
@@ -344,6 +364,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminGradesRoute: AdminGradesRoute,
   AdminLecturersRoute: AdminLecturersRoute,
   AdminNewsRoute: AdminNewsRoute,
+  AdminOrganizationRoute: AdminOrganizationRoute,
   AdminPortalRoute: AdminPortalRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminScholarshipsRoute: AdminScholarshipsRoute,

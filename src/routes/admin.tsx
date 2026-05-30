@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
-import { GraduationCap, LayoutDashboard, Users, ClipboardList, BookOpen, CalendarCheck, GraduationCap as GradIcon, DollarSign, Award, UserCheck, CalendarDays, Newspaper, BarChart3, Bell, ExternalLink, ChevronDown, User } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Users, ClipboardList, BookOpen, CalendarCheck, GraduationCap as GradIcon, DollarSign, Award, UserCheck, CalendarDays, Newspaper, BarChart3, Bell, ExternalLink, ChevronDown, User, Building2 } from "lucide-react";
 import { RoleProvider, useRole, ALL_ROLES, ROLE_ACCESS, type Role } from "@/contexts/RoleContext";
 
 export const Route = createFileRoute("/admin")({
@@ -16,6 +16,7 @@ type LinkDef = { to: string; label: string; icon: typeof LayoutDashboard; exact?
 const ALL_LINKS: LinkDef[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/portal", label: "My Portal", icon: User, exact: true },
+  { to: "/admin/organization", label: "Organization", icon: Building2 },
   { to: "/admin/students", label: "Students", icon: Users },
   { to: "/admin/enrollment", label: "Enrollment", icon: ClipboardList },
   { to: "/admin/classes", label: "Classes", icon: BookOpen },
@@ -32,6 +33,7 @@ const ALL_LINKS: LinkDef[] = [
 const titles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/portal": "My Portal",
+  "/admin/organization": "Organization",
   "/admin/students": "Students",
   "/admin/enrollment": "Enrollment",
   "/admin/classes": "Classes",

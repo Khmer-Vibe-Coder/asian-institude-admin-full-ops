@@ -17,3 +17,4 @@ export { gradesApi, letterFromScore, type Grade } from "./grades";
 export { invoicesApi, type Invoice } from "./finance";
 export { timetableApi, type TimetableSlot } from "./timetable";
 export { messagesApi, type ContactMessage } from "./messages";
+export { facultiesApi, departmentsApi, type FacultyRecord, type DepartmentRecord } from "./organization";

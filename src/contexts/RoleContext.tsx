@@ -8,6 +8,7 @@ export const ALL_ROLES: Role[] = ["Principal", "Staff", "Lecturer", "Accountant"
 export const ROLE_ACCESS: Record<Role, string[]> = {
   Principal: [
     "/admin",
+    "/admin/organization",
     "/admin/students",
     "/admin/enrollment",
     "/admin/classes",
