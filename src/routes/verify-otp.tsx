@@ -14,8 +14,9 @@ export const Route = createFileRoute('/verify-otp')({
     }
   },
   beforeLoad: () => {
-    // Route commented out for now
-    throw redirect({ to: '/login' });
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('aic.role')) {
+      throw redirect({ to: '/admin' });
+    }
   },
   component: VerifyOtpPage,
 });
@@ -53,36 +54,39 @@ function VerifyOtpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-navy-deep hero-overlay p-4">
-      <div className="glass-card w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f6fa] p-4 font-sans">
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl border border-slate-200 shadow-xl relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-gold mb-2">{t.title}</h1>
-          <p className="text-muted-foreground font-sans">
+          <div className="size-16 mx-auto bg-[#d9a441] rounded-2xl flex items-center justify-center mb-6 shadow-md">
+            <span className="text-white font-serif text-3xl font-bold">AIC</span>
+          </div>
+          <h1 className="text-2xl font-serif text-[#0f1b3d] font-bold mb-2">{t.title}</h1>
+          <p className="text-slate-500 text-sm">
             {t.subtitle}
             <br/>
-            <span className="font-semibold text-foreground/80">{search.email}</span>
+            <span className="font-semibold text-slate-800">{search.email}</span>
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg text-sm text-center">
+          <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm text-center font-medium">
             {error}
           </div>
         )}
         {successMsg && (
-          <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg text-sm text-center">
+          <div className="mb-6 p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-lg text-sm text-center font-medium">
             {successMsg}
           </div>
         )}
 
-        <form onSubmit={handleVerify} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground/80">{t.otpLabel}</label>
+        <form onSubmit={handleVerify} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-700">{t.otpLabel}</label>
             <input
               type="text"
               required
               maxLength={6}
-              className="w-full px-4 py-3 text-center tracking-widest text-2xl rounded-lg bg-background/50 border border-border focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
+              className="w-full px-4 py-3 text-center tracking-widest text-2xl rounded-lg bg-white border border-slate-300 text-slate-900 focus:border-[#d9a441] focus:ring-1 focus:ring-[#d9a441] outline-none transition-all placeholder:text-slate-300"
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               placeholder="000000"
@@ -92,14 +96,14 @@ function VerifyOtpPage() {
           <button
             type="submit"
             disabled={loading || otp.length < 6}
-            className="w-full py-3 px-4 bg-gold hover:bg-gold-soft text-navy-deep font-bold rounded-lg transition-colors disabled:opacity-50"
+            className="w-full py-2.5 px-4 mt-2 bg-[#0f1b3d] hover:bg-[#1a2b5e] text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:shadow-none"
           >
-            {loading ? '...' : t.submitBtn}
+            {loading ? 'Verifying...' : t.submitBtn}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm">
-          <button className="text-gold hover:text-gold-soft transition-colors font-medium">
+        <div className="mt-8 text-center text-sm">
+          <button className="text-[#d9a441] hover:text-[#c29135] font-medium transition-colors">
             {t.resend}
           </button>
         </div>

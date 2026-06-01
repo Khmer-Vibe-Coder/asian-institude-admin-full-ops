@@ -5,8 +5,9 @@ import en from '../locales/en/auth.json';
 
 export const Route = createFileRoute('/forgot-password')({
   beforeLoad: () => {
-    // Route commented out for now
-    throw redirect({ to: '/login' });
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('aic.role')) {
+      throw redirect({ to: '/admin' });
+    }
   },
   component: ForgotPasswordPage,
 });
@@ -35,36 +36,40 @@ function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-navy-deep hero-overlay p-4">
-      <div className="glass-card w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f6fa] p-4 font-sans">
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl border border-slate-200 shadow-xl relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-gold mb-2">{t.title}</h1>
-          <p className="text-muted-foreground font-sans">{t.subtitle}</p>
+          <div className="size-16 mx-auto bg-[#d9a441] rounded-2xl flex items-center justify-center mb-6 shadow-md">
+            <span className="text-white font-serif text-3xl font-bold">AIC</span>
+          </div>
+          <h1 className="text-2xl font-serif text-[#0f1b3d] font-bold mb-2">{t.title}</h1>
+          <p className="text-slate-500 text-sm">{t.subtitle}</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg text-sm text-center">
+          <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm text-center font-medium">
             {error}
           </div>
         )}
 
         {success ? (
           <div className="text-center space-y-6">
-            <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg text-sm">
+            <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-lg text-sm font-medium">
               We have sent a password reset link to your email.
             </div>
-            <Link to="/login" className="inline-block text-gold hover:text-gold-soft font-medium">
+            <Link to="/login" className="inline-block text-[#d9a441] hover:text-[#c29135] font-medium transition-colors">
               {t.backToLogin}
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground/80">{t.emailLabel}</label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">{t.emailLabel}</label>
               <input
                 type="email"
                 required
-                className="w-full px-4 py-2 rounded-lg bg-background/50 border border-border focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
+                className="w-full px-4 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 focus:border-[#d9a441] focus:ring-1 focus:ring-[#d9a441] outline-none transition-all placeholder:text-slate-400"
+                placeholder="admin@asianinstitute.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -73,13 +78,13 @@ function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gold hover:bg-gold-soft text-navy-deep font-bold rounded-lg transition-colors disabled:opacity-50"
+              className="w-full py-2.5 px-4 mt-2 bg-[#0f1b3d] hover:bg-[#1a2b5e] text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:shadow-none"
             >
-              {loading ? '...' : t.submitBtn}
+              {loading ? 'Sending...' : t.submitBtn}
             </button>
             
-            <div className="text-center">
-              <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <div className="mt-8 text-center">
+              <Link to="/login" className="text-sm text-slate-500 hover:text-slate-800 font-medium transition-colors">
                 {t.backToLogin}
               </Link>
             </div>
