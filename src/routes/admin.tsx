@@ -4,6 +4,11 @@ import { GraduationCap, LayoutDashboard, Users, ClipboardList, BookOpen, Calenda
 import { RoleProvider, useRole, ALL_ROLES, ROLE_ACCESS, type Role } from "@/contexts/RoleContext";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: () => {
+    if (typeof localStorage !== 'undefined' && !localStorage.getItem('aic.role')) {
+      throw redirect({ to: '/login' });
+    }
+  },
   component: () => (
     <RoleProvider>
       <AdminLayout />
